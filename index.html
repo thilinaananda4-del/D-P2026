@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>poson thorana</title>
+<title>Digita Poson</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Sinhala:wght@400;600;700;800&family=Yaldevi:wght@400;600;700&display=swap" rel="stylesheet">
@@ -202,11 +202,11 @@
     .loader-msg { max-height: 38vh; padding: 0 10px; }
     .progress-wrap { width: clamp(160px,70vw,400px); }
     #enter-btn { padding: 12px 28px; font-size: 15px; }
-    #social-bar { bottom: 22px; gap: 6px; }
+    #social-bar { bottom: 16px; max-width: 340px; gap: 6px; }
     .social-link { padding: 6px 12px; gap: 5px; }
     .social-icon { width: 18px; height: 18px; }
-    #music-btn { bottom: 14px; right: 12px; width: 40px; height: 40px; font-size: 18px; }
-    #copyright { bottom: 4px; font-size: 9px; }
+    #music-btn { bottom: 72px; right: 10px; width: 40px; height: 40px; font-size: 18px; }
+    #copyright { bottom: 2px; font-size: 9px; }
   }
 
   @media (max-height: 600px) {
@@ -288,74 +288,94 @@
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
+  function isMobileDevice() { return window.innerWidth <= 480; }
+
   function createFlake() {
-    return { x: Math.random()*canvas.width, y:-10, r: Math.random()*4+1.5,
-             speed: Math.random()*1.2+0.4, drift: Math.random()*0.6-0.3, opacity: Math.random()*0.6+0.3 };
+    return {
+      x: Math.random() * canvas.width,
+      y: -10,
+      r: isMobileDevice() ? Math.random() * 2 + 0.8 : Math.random() * 4 + 1.5,
+      speed: isMobileDevice() ? Math.random() * 0.8 + 0.3 : Math.random() * 1.2 + 0.4,
+      drift: Math.random() * 0.6 - 0.3,
+      opacity: Math.random() * 0.6 + 0.3
+    };
   }
-  for (let i=0;i<120;i++) flakes.push({...createFlake(), y:Math.random()*canvas.height});
+
+  const flakeCount = isMobileDevice() ? 45 : 120;
+  for (let i = 0; i < flakeCount; i++) flakes.push({...createFlake(), y: Math.random() * canvas.height});
 
   function drawSnow() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    flakes.forEach(f=>{
-      ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,255,255,${f.opacity})`; ctx.fill();
-      f.y+=f.speed; f.x+=f.drift;
-      if(f.y>canvas.height+10) Object.assign(f,createFlake());
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    flakes.forEach(f => {
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${f.opacity})`; ctx.fill();
+      f.y += f.speed; f.x += f.drift;
+      if (f.y > canvas.height + 10) Object.assign(f, createFlake());
     });
     requestAnimationFrame(drawSnow);
   }
   drawSnow();
 
   /* ===== TYPEWRITER ===== */
-  const messages = ["ලක් දෙරණ ධර්මයෙන් ඒකාලෝක කළ, පින්බර පොසොන් පෝය දිනයක් වේවා!","මහින්දාගමනය කතා පුවත රැගත් ඩිජිටල් තොරණ දැකබලා ඔබත් පිං සිත් පහදවා ගනිත්වා..","විරිදු සුරල්වල අයිතිය මුල් හිමිකරුවන් සතුවේ.","අඩුපාඩු වෙතොත් සමාවෙන්න...","ඔබගේ අදහස් මාහට යොමු කරන්න.","ස්තූතිය - සහය දුන් සැමට!"];
-  let mIdx=0, cIdx=0;
-  const el=document.getElementById('type-text');
-  const bar=document.getElementById('progress-bar');
-  const btn=document.getElementById('enter-btn');
-  let prog=0;
-  const pi=setInterval(()=>{ if(prog<98){prog+=0.4; bar.style.width=prog+'%';} },40);
+  const messages = [
+    "ලක් දෙරණ ධර්මයෙන් ඒකාලෝක කළ, පින්බර පොසොන් පෝය දිනයක් වේවා!",
+    "මහින්දාගමනය කතා පුවත රැගත් ඩිජිටල් තොරණ දැකබලා ඔබත් පිං සිත් පහදවා ගනිත්වා..",
+    "විරිදු සුරල්වල අයිතිය මුල් හිමිකරුවන් සතුවේ.",
+    "අඩුපාඩු වෙතොත් සමාවෙන්න...",
+    "ඔබගේ අදහස් මාහට යොමු කරන්න.",
+    "ස්තූතිය - සහය දුන් සැමට!"
+  ];
+  let mIdx = 0, cIdx = 0;
+  const el  = document.getElementById('type-text');
+  const bar = document.getElementById('progress-bar');
+  const btn = document.getElementById('enter-btn');
+  let prog = 0;
+  const pi = setInterval(() => { if (prog < 98) { prog += 0.4; bar.style.width = prog + '%'; } }, 40);
 
   function typeNext() {
-    if(mIdx>=messages.length){
-      clearInterval(pi); bar.style.transition='width 0.4s ease'; bar.style.width='100%';
-      setTimeout(()=>{ btn.style.display='block'; },500); return;
+    if (mIdx >= messages.length) {
+      clearInterval(pi);
+      bar.style.transition = 'width 0.4s ease';
+      bar.style.width = '100%';
+      setTimeout(() => { btn.style.display = 'block'; }, 500);
+      return;
     }
-    const msg=messages[mIdx];
-    let lineEl=document.getElementById('msg-line-'+mIdx);
-    if(!lineEl){
-      lineEl=document.createElement('span');
-      lineEl.className='msg-line';
-      lineEl.id='msg-line-'+mIdx;
+    const msg = messages[mIdx];
+    let lineEl = document.getElementById('msg-line-' + mIdx);
+    if (!lineEl) {
+      lineEl = document.createElement('span');
+      lineEl.className = 'msg-line';
+      lineEl.id = 'msg-line-' + mIdx;
       el.appendChild(lineEl);
     }
-    if(cIdx<msg.length){ lineEl.textContent+=msg[cIdx++]; setTimeout(typeNext,75); }
-    else { mIdx++; cIdx=0; setTimeout(()=>{ typeNext(); },600); }
+    if (cIdx < msg.length) { lineEl.textContent += msg[cIdx++]; setTimeout(typeNext, 75); }
+    else { mIdx++; cIdx = 0; setTimeout(() => { typeNext(); }, 600); }
   }
   typeNext();
 
   /* ===== ENTER ===== */
   function enterSite() {
     document.getElementById('loader').classList.add('hide');
-    setTimeout(()=>{
-      document.getElementById('loader').style.display='none';
-      document.getElementById('main').style.display='block';
-      document.getElementById('social-bar').style.display='flex';
-      document.getElementById('copyright').style.display='block';
-      document.getElementById('bg-audio').play().catch(()=>{});
-    },800);
+    setTimeout(() => {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      document.getElementById('social-bar').style.display = 'flex';
+      document.getElementById('copyright').style.display = 'block';
+      document.getElementById('bg-audio').play().catch(() => {});
+    }, 800);
   }
 
   /* ===== MUSIC ===== */
-  const audio=document.getElementById('bg-audio');
-  const musicBtn=document.getElementById('music-btn');
-  musicBtn.addEventListener('click',()=>{
-    if(audio.paused){audio.play();musicBtn.textContent='🎵';}
-    else{audio.pause();musicBtn.textContent='🔇';}
+  const audio    = document.getElementById('bg-audio');
+  const musicBtn = document.getElementById('music-btn');
+  musicBtn.addEventListener('click', () => {
+    if (audio.paused) { audio.play(); musicBtn.textContent = '🎵'; }
+    else              { audio.pause(); musicBtn.textContent = '🔇'; }
   });
 
   /* ===== TOUCH GLOW ===== */
   document.querySelectorAll('.social-link').forEach(link => {
-    link.addEventListener('touchstart', () => link.classList.add('touch-active'), { passive: true });
+    link.addEventListener('touchstart', () => link.classList.add('touch-active'),  { passive: true });
     link.addEventListener('touchend',   () => setTimeout(() => link.classList.remove('touch-active'), 400));
   });
 </script>
